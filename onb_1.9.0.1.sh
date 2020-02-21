@@ -432,7 +432,7 @@ BIGIP_LICENSE=$(remove_quotes $(xpath //var/tmp/vmout.xml '//Property[@oe:key="B
 
 
 
-BIGIP_HOSTNAME="$COUNTRY""$LOCALITY""VEcc$CUSTOMER_CC$LB_NUM.$LOCALITY.ecs.hp.com";
+BIGIP_HOSTNAME="$COUNTRY""$LOCALITY""VEcc$CUSTOMER_CC$LB_NUM.$LOCALITY.mcloud.entsvcs.net";
 
 DEVICE_GROUP="\"192.168.7.1\",\"192.168.7.2\"";
 
@@ -487,10 +487,10 @@ case "$REGION"  in
         NTP="\"192.85.247.111\",\"30.7.88.1\""
 
    ;;
-   
-   ams) DNS="\"138.35.151.51\",\"138.35.151.115\"";
 
-        NTP="\"38.35.151.48\",\"138.35.151.112\",\"138.35.151.176\""
+   ams) DNS="\"192.85.168.73\",\"138.35.151.115\"";
+
+        NTP="\"192.85.247.111\",\"30.7.88.1\",\"138.35.151.176\""
 
    ;;
 
@@ -1256,7 +1256,7 @@ BIGIP_DCO_JS='{
 
             "search": [
 
-                "hpe.com"
+                "mcloud.entsvcs.net"
 
             ]
 
@@ -1336,11 +1336,49 @@ BIGIP_DCO_JS='{
 
             "address": "/Common/HA_IP/address"
 
-        }
+        },
 
-    }
+        "failoverGroup": {
 
+            "class": "DeviceGroup",
+
+            "type": "sync-failover",
+			
+			"members": ["'"$COUNTRY"''"$LOCALITY"'VE'"$CUSTOMER_CC"'001.'"$LOCALITY"'.mcloud.entsvcs.net", "'"$COUNTRY"''"$LOCALITY"'VE'"$CUSTOMER_CC"'002.'"$LOCALITY"'.mcloud.entsvcs.net", "'"$COUNTRY"''"$LOCALITY"'VE'"$CUSTOMER_CC"'003.'"$LOCALITY"'.mcloud.entsvcs.net"],
+			
+			"owner": "/Common/failoverGroup/members/0",
+			
+			"autoSync": true,
+			
+			"saveOnAutoSync": true,
+			
+			"networkFailover": true,
+			
+			"fullLoadOnSync": false,
+			
+			"asmSync": false
+        },
+		
+		"trust": {
+		
+		     "class": "DeviceTrust",
+			 
+			 "localUsername": "'"$BIGIP_USERNAME"'",
+			 
+			 "localPassword": "'"$BIGIP_PASSWORD"'",
+			 
+			 "remoteHost": "/Common/failoverGroup/members/0",
+			 
+			 "remoteUsername": "'"$BIGIP_USERNAME"'",
+			 
+			 "remotePassword": "'"$BIGIP_PASSWORD"'"
+			 
+		}
+	
+	}
+	
 }'
+
 
 
 
@@ -1404,15 +1442,15 @@ done
 
 #
 
-BIGIP_TACACS_JS='{
+#BIGIP_TACACS_JS='{
 
 #Add json for tacacs here
 
-}'
+#}'
 
 
 
-echo "BIGIP_TACACS_JS=$BIGIP_TACACS_JS";
+#echo "BIGIP_TACACS_JS=$BIGIP_TACACS_JS";
 
 #********************************************************************************************
 
